@@ -64,8 +64,11 @@ const state = {
 
 let listView = null;
 
+// index.html の data-version を付けて、データも公開ファイルと同じ版を読む
+const assetVersion = document.documentElement.dataset.version ?? '';
+
 async function loadJson(url) {
-  const response = await fetch(url);
+  const response = await fetch(assetVersion ? `${url}?v=${assetVersion}` : url);
   if (!response.ok) throw new Error(`${url} の読み込みに失敗しました（${response.status}）`);
   return response.json();
 }
@@ -340,7 +343,7 @@ async function init() {
     route();
   } catch (error) {
     elements.targetCount.textContent = '';
-    elements.errorMessage.textContent = error.message;
+    elements.errorMessage.textContent = `${error.message}（再読み込みすると直ることがあります）`;
     elements.errorMessage.hidden = false;
   }
 }

@@ -1,13 +1,26 @@
 <!doctype html>
-<html lang="ja">
+<html lang="ja" data-version="202611082349">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#d93b3b">
   <title>RandomDex</title>
-  <link rel="stylesheet" href="./css/style.css">
-  <script type="module" src="./js/app.js"></script>
+  <!-- ?v= は scripts/bumpVersion.mjs で更新する（古いファイルがキャッシュから混ざらないようにするため） -->
+  <link rel="stylesheet" href="./css/style.css?v=202611082349">
+  <script type="importmap">
+    {
+      "imports": {
+        "./js/app.js": "./js/app.js?v=202611082349",
+        "./js/roulette.js": "./js/roulette.js?v=202611082349",
+        "./js/detailView.js": "./js/detailView.js?v=202611082349",
+        "./js/imageSwitcher.js": "./js/imageSwitcher.js?v=202611082349",
+        "./js/filter.js": "./js/filter.js?v=202611082349",
+        "./js/listView.js": "./js/listView.js?v=202611082349"
+      }
+    }
+  </script>
+  <script type="module" src="./js/app.js?v=202611082349"></script>
 </head>
 <body data-view="draw">
   <header class="appHeader">

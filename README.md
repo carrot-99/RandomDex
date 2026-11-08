@@ -24,3 +24,13 @@ node scripts/pokemon/buildItems.mjs
 - 取得結果は `scripts/pokemon/.cache/` にキャッシュされます（コミットしません）。取り直すときは `--refresh` を付けます。
 - 実行後、`scripts/pokemon/buildReport.md` に検証レポートが出ます。
 - 除外する姿・ラベルの上書き・分類の補完は `scripts/pokemon/buildRules.json`、PokeAPI に無いデータの手入力は `scripts/pokemon/manualItems.json` に書きます。
+
+## 公開前にバージョンを更新する
+
+GitHub Pages はファイルごとに10分キャッシュされるため、更新直後に新旧のファイルが混ざってエラーになることがあります。公開する変更をコミットする前に、次を実行して `index.html` のバージョン（`?v=`）を更新してください。
+
+```bash
+node scripts/bumpVersion.mjs
+```
+
+JS ファイルを追加したときは、`index.html` の importmap にも1行追加します。
