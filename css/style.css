@@ -579,13 +579,39 @@ body.isSheetOpen { overflow: hidden; }
 /* 一覧画面 */
 .listView { padding-bottom: calc(env(safe-area-inset-bottom) + 24px); }
 
-.searchBox {
+/* 一覧・履歴の上部（タブと検索欄）。スクロールしても上に残す */
+.listTop {
   position: sticky;
   top: calc(env(safe-area-inset-top) + 58px);
   z-index: 5;
+  display: grid;
+  gap: 10px;
   margin: -24px -16px 0;
   padding: 12px 16px 8px;
   background: var(--colorBg);
+}
+
+.listTabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--colorSurface);
+}
+
+.listTab {
+  padding: 8px 0;
+  border-radius: 9px;
+  color: var(--colorMuted);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.listTab.isCurrent {
+  background: var(--colorPrimary);
+  color: #fff;
 }
 
 .searchInput {
@@ -693,3 +719,29 @@ body.isSheetOpen { overflow: hidden; }
 }
 
 #itemView { padding-bottom: calc(env(safe-area-inset-bottom) + 24px); }
+
+/* 抽選履歴 */
+.historyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 36px;
+}
+
+.textButton {
+  padding: 6px 4px;
+  border: none;
+  background: none;
+  color: var(--colorPrimary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.textButton[hidden] { display: none; }
+
+.itemRowMeta {
+  color: var(--colorMuted);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+}

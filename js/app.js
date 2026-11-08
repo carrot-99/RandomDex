@@ -2,12 +2,15 @@
 // 画面は URL の # で切り替える（スマホの戻る操作で前の画面に戻れる）
 //   （なし）        抽選画面：待機中・抽選中・結果表示
 //   #list           一覧画面
-//   #item/<id>      詳細画面（一覧から開く）
+//   #history        抽選履歴画面
+//   #item/<id>      詳細画面（一覧・履歴から開く）
 import { createRoulette } from './roulette.js';
 import { renderDetail } from './detailView.js';
 import { createImageSwitcher } from './imageSwitcher.js';
 import { createFilterPanel, filterItems, loadSelections, saveSelections, countActiveSelections } from './filter.js';
 import { createListView } from './listView.js';
+import { loadHistory, addHistory, clearHistory } from './history.js';
+import { createHistoryView } from './historyView.js';
 
 const byId = (id) => document.getElementById(id);
 
@@ -36,6 +39,12 @@ const elements = {
   searchInput: byId('searchInput'),
   listCount: byId('listCount'),
   itemList: byId('itemList'),
+  // 抽選履歴画面
+  historyView: byId('historyView'),
+  historyList: byId('historyList'),
+  historyCount: byId('historyCount'),
+  historyClearButton: byId('historyClearButton'),
+  backLink: byId('backLink'),
   // 詳細画面
   itemView: byId('itemView'),
   itemImageFrame: byId('itemImageFrame'),
@@ -52,17 +61,21 @@ const elements = {
 const revealDelayMs = 450;
 
 const state = {
-  view: 'draw', // draw | list | item
+  view: 'draw', // draw | list | history | item
   phase: 'idle', // idle | drawing | stopping | result
   workConfig: null,
   items: [],
   itemsById: new Map(),
   targetItems: [],
-  listScrollY: 0,
+  // 一覧・履歴のスクロール位置（詳細から戻ったときに使う）
+  scrollByView: {},
+  // 詳細の「戻る」の行き先
+  lastListView: 'list',
   currentItem: null,
 };
 
 let listView = null;
+let historyView = null;
 
 // index.html の data-version を付けて、データも公開ファイルと同じ版を読む
 const assetVersion = document.documentElement.dataset.version ?? '';
@@ -165,6 +178,7 @@ function showResult(item, imageUrl) {
   }
   fillDetail({ name: elements.itemName, subName: elements.itemSubName, list: elements.detailList }, item);
   elements.detailArea.hidden = false;
+  historyView?.setEntries(addHistory(state.workConfig.workId, item.id));
   setPhase('result');
 }
 
@@ -174,7 +188,7 @@ elements.mainButton.addEventListener('click', () => {
 });
 
 // ---------------------------------------------------------------------------
-// 詳細画面（一覧から開く）
+// 詳細画面（一覧・履歴から開く）
 // ---------------------------------------------------------------------------
 
 const itemImageSwitcher = createImageSwitcher({
@@ -215,6 +229,7 @@ elements.itemImage.addEventListener('load', () => {
 function parseHash() {
   const hash = decodeURIComponent(location.hash.replace(/^#/, ''));
   if (hash === 'list') return { view: 'list' };
+  if (hash === 'history') return { view: 'history' };
   if (hash.startsWith('item/')) return { view: 'item', id: hash.slice('item/'.length) };
   return { view: 'draw' };
 }
@@ -234,23 +249,27 @@ function route() {
   if (view === previousView && (view !== 'item' || item === state.currentItem)) return;
   state.currentItem = item;
 
-  if (previousView === 'list' && view !== 'list') state.listScrollY = window.scrollY;
+  const isListLike = (name) => name === 'list' || name === 'history';
+  if (isListLike(previousView)) state.scrollByView[previousView] = window.scrollY;
+  if (isListLike(view)) state.lastListView = view;
 
   state.view = view;
   document.body.dataset.view = view;
   elements.drawView.hidden = view !== 'draw';
   elements.listView.hidden = view !== 'list';
+  elements.historyView.hidden = view !== 'history';
   elements.itemView.hidden = view !== 'item';
   elements.actionBar.hidden = view !== 'draw';
   elements.viewSwitchButton.textContent = view === 'draw' ? '一覧' : '抽選';
   elements.viewSwitchButton.href = view === 'draw' ? '#list' : '#';
+  elements.backLink.href = `#${state.lastListView}`;
 
   if (view === 'item') {
     showItemView(item);
     window.scrollTo({ top: 0 });
-  } else if (view === 'list') {
+  } else if (isListLike(view)) {
     // 詳細から戻ったときは元のスクロール位置に戻す
-    window.scrollTo({ top: previousView === 'item' ? state.listScrollY : 0 });
+    window.scrollTo({ top: previousView === 'item' ? state.scrollByView[view] ?? 0 : 0 });
   } else {
     window.scrollTo({ top: 0 });
   }
@@ -269,22 +288,23 @@ elements.viewSwitchButton.addEventListener('click', (event) => {
   }
 });
 
-// 詳細の「一覧に戻る」：一覧から開いたときはブラウザの戻るを使い、スクロール位置を保つ
-elements.itemView.querySelector('#backLink').addEventListener('click', (event) => {
+// 詳細の「戻る」：一覧・履歴から開いたときはブラウザの戻るを使い、スクロール位置を保つ
+elements.backLink.addEventListener('click', (event) => {
   if (history.state?.fromList) {
     event.preventDefault();
     history.back();
   }
 });
 
-elements.itemList.addEventListener('click', (event) => {
-  const link = event.target.closest('a.itemLink');
-  if (!link) return;
-  event.preventDefault();
-  state.listScrollY = window.scrollY;
-  history.pushState({ fromList: true }, '', link.getAttribute('href'));
-  route();
-});
+for (const list of [elements.itemList, elements.historyList]) {
+  list.addEventListener('click', (event) => {
+    const link = event.target.closest('a.itemLink');
+    if (!link) return;
+    event.preventDefault();
+    history.pushState({ fromList: true }, '', link.getAttribute('href'));
+    route();
+  });
+}
 
 // スクロール位置は自分で戻すので、ブラウザの自動復元は切る
 history.scrollRestoration = 'manual';
@@ -322,6 +342,18 @@ async function init() {
       searchInput: elements.searchInput,
       workConfig,
     });
+
+    historyView = createHistoryView({
+      list: elements.historyList,
+      count: elements.historyCount,
+      clearButton: elements.historyClearButton,
+      workConfig,
+      itemsById: state.itemsById,
+      onClear() {
+        historyView.setEntries(clearHistory(workConfig.workId));
+      },
+    });
+    historyView.setEntries(loadHistory(workConfig.workId));
 
     const filters = workConfig.filters ?? [];
     const selections = loadSelections(workConfig.workId, filters, items);
