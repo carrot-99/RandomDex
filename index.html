@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja" data-version="202611090001">
+<html lang="ja" data-version="202611090008">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -15,28 +15,32 @@
   <meta name="apple-mobile-web-app-title" content="RandomDex">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <!-- ?v= は scripts/bumpVersion.mjs で更新する（古いファイルがキャッシュから混ざらないようにするため） -->
-  <link rel="stylesheet" href="./css/style.css?v=202611090001">
+  <link rel="stylesheet" href="./css/style.css?v=202611090008">
   <script type="importmap">
     {
       "imports": {
-        "./js/app.js": "./js/app.js?v=202611090001",
-        "./js/roulette.js": "./js/roulette.js?v=202611090001",
-        "./js/detailView.js": "./js/detailView.js?v=202611090001",
-        "./js/imageSwitcher.js": "./js/imageSwitcher.js?v=202611090001",
-        "./js/filter.js": "./js/filter.js?v=202611090001",
-        "./js/listView.js": "./js/listView.js?v=202611090001",
-        "./js/history.js": "./js/history.js?v=202611090001",
-        "./js/historyView.js": "./js/historyView.js?v=202611090001"
+        "./js/app.js": "./js/app.js?v=202611090008",
+        "./js/roulette.js": "./js/roulette.js?v=202611090008",
+        "./js/detailView.js": "./js/detailView.js?v=202611090008",
+        "./js/imageSwitcher.js": "./js/imageSwitcher.js?v=202611090008",
+        "./js/filter.js": "./js/filter.js?v=202611090008",
+        "./js/listView.js": "./js/listView.js?v=202611090008",
+        "./js/history.js": "./js/history.js?v=202611090008",
+        "./js/historyView.js": "./js/historyView.js?v=202611090008"
       }
     }
   </script>
-  <script type="module" src="./js/app.js?v=202611090001"></script>
+  <script type="module" src="./js/app.js?v=202611090008"></script>
 </head>
 <body data-view="draw">
   <header class="appHeader">
     <div class="headerLeft">
       <h1 class="appTitle">RandomDex</h1>
-      <p class="targetCount" id="targetCount">読み込み中…</p>
+      <div class="headerSub">
+        <!-- 作品が2つ以上あるときだけ表示 -->
+        <select class="workSelect" id="workSelect" aria-label="作品の切り替え" hidden></select>
+        <p class="targetCount" id="targetCount">読み込み中…</p>
+      </div>
     </div>
     <div class="headerRight">
       <a class="headerButton" id="viewSwitchButton" href="#list">一覧</a>
@@ -52,6 +56,7 @@
       <div class="imageFrame" id="imageFrame">
         <div class="placeholder" id="placeholder" aria-hidden="true">？</div>
         <img class="resultImage" id="resultImage" alt="" draggable="false" hidden>
+        <p class="frameText" id="frameText" hidden></p>
       </div>
       <p class="imageLabel" id="imageLabel" hidden></p>
       <div class="dots" id="imageDots" aria-hidden="true" hidden></div>

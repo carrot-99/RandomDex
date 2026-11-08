@@ -16,6 +16,7 @@ const byId = (id) => document.getElementById(id);
 
 const elements = {
   targetCount: byId('targetCount'),
+  workSelect: byId('workSelect'),
   viewSwitchButton: byId('viewSwitchButton'),
   filterButton: byId('filterButton'),
   filterBadge: byId('filterBadge'),
@@ -25,6 +26,7 @@ const elements = {
   imageFrame: byId('imageFrame'),
   placeholder: byId('placeholder'),
   resultImage: byId('resultImage'),
+  frameText: byId('frameText'),
   imageLabel: byId('imageLabel'),
   imageDots: byId('imageDots'),
   detailArea: byId('detailArea'),
@@ -86,9 +88,48 @@ async function loadJson(url) {
   return response.json();
 }
 
+// 選んでいる作品（作品が複数あるとき）。キーは必ず RandomDex_ で始める
+const currentWorkKey = 'RandomDex_currentWork';
+
+function loadCurrentWorkId() {
+  try {
+    return localStorage.getItem(currentWorkKey);
+  } catch {
+    return null;
+  }
+}
+
+function saveCurrentWorkId(workId) {
+  try {
+    localStorage.setItem(currentWorkKey, workId);
+  } catch {
+    // 保存できない環境では次回は先頭の作品になる
+  }
+}
+
+// 作品が2つ以上あればヘッダーに切り替えを出す。切り替えたら作品を保存して読み込み直す
+function setUpWorkSelect(workList, currentWorkId) {
+  if (workList.length < 2) return;
+  for (const work of workList) {
+    const option = document.createElement('option');
+    option.value = work.workId;
+    option.textContent = work.title;
+    option.selected = work.workId === currentWorkId;
+    elements.workSelect.append(option);
+  }
+  elements.workSelect.hidden = false;
+  elements.workSelect.addEventListener('change', () => {
+    saveCurrentWorkId(elements.workSelect.value);
+    // 画面・絞り込み・履歴を作品ごとに作り直すため、抽選画面から読み込み直す
+    location.replace(location.pathname + location.search);
+  });
+}
+
 async function loadWork() {
-  const workList = await loadJson('./works/workList.json');
-  const work = [...workList].sort((a, b) => a.order - b.order)[0];
+  const workList = [...await loadJson('./works/workList.json')].sort((a, b) => a.order - b.order);
+  const savedWorkId = loadCurrentWorkId();
+  const work = workList.find((entry) => entry.workId === savedWorkId) ?? workList[0];
+  setUpWorkSelect(workList, work.workId);
   const [workConfig, items] = await Promise.all([
     loadJson(`./works/${work.workId}/workConfig.json`),
     loadJson(`./works/${work.workId}/items.json`),
@@ -100,22 +141,39 @@ async function loadWork() {
 // 抽選画面
 // ---------------------------------------------------------------------------
 
+// 画像の無い作品では、placeholder に名前の1文字目を出す
+function initialOf(item) {
+  return [...(item?.name ?? '')][0] ?? '？';
+}
+
 function showImage(url, { silhouette }) {
   elements.resultImage.src = url;
   elements.resultImage.classList.toggle('isSilhouette', silhouette);
   elements.resultImage.hidden = false;
   elements.placeholder.hidden = true;
+  elements.frameText.hidden = true;
 }
 
-function showPlaceholder() {
+function showPlaceholder(text = '？') {
   elements.resultImage.hidden = true;
   elements.resultImage.removeAttribute('src');
+  elements.frameText.hidden = true;
+  elements.placeholder.textContent = text;
   elements.placeholder.hidden = false;
 }
 
+// 画像の無い item の抽選中は名前を入れ替えて表示する
+function showFrameText(text) {
+  elements.resultImage.hidden = true;
+  elements.placeholder.hidden = true;
+  elements.frameText.textContent = text;
+  elements.frameText.hidden = false;
+}
+
 const roulette = createRoulette({
-  onFrame(url) {
-    showImage(url, { silhouette: true });
+  onFrame({ item, url }) {
+    if (url) showImage(url, { silhouette: true });
+    else showFrameText(item.name);
   },
 });
 
@@ -135,6 +193,7 @@ function setPhase(phase) {
   // 抽選中は対象が変わらないよう、絞り込みと画面切り替えをできなくする
   const busy = phase === 'drawing' || phase === 'stopping';
   elements.filterButton.disabled = !state.workConfig || busy;
+  elements.workSelect.disabled = busy;
   elements.viewSwitchButton.classList.toggle('isDisabled', busy);
   elements.viewSwitchButton.setAttribute('aria-disabled', String(busy));
 }
@@ -174,7 +233,7 @@ function showResult(item, imageUrl) {
     showImage(imageUrl, { silhouette: false });
     imageSwitcher.show(item.images);
   } else {
-    showPlaceholder();
+    showPlaceholder(item.images?.length ? '？' : initialOf(item));
   }
   fillDetail({ name: elements.itemName, subName: elements.itemSubName, list: elements.detailList }, item);
   elements.detailArea.hidden = false;
@@ -199,7 +258,8 @@ const itemImageSwitcher = createImageSwitcher({
 });
 
 function showItemView(item) {
-  if (item.images.length) {
+  elements.itemPlaceholder.textContent = item.images?.length ? '？' : initialOf(item);
+  if (item.images?.length) {
     elements.itemImage.hidden = false;
     elements.itemPlaceholder.hidden = true;
     itemImageSwitcher.show(item.images);

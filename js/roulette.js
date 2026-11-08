@@ -2,6 +2,7 @@
 // - START：対象から無作為に選んだ30件程度の画像を先読みし、読み込めたものから約80msごとに入れ替える
 // - STOP ：その瞬間に対象全体から均等な確率で1件を決め、その画像の読み込みを始める
 //          約1秒かけて入れ替え間隔を伸ばして減速し、最後に決定した1件の画像で止める
+// - 画像の無い item（画像を用意できない作品など）は名前を入れ替えて表示する
 
 const tickIntervalMs = 80;
 const preloadCount = 30;
@@ -59,22 +60,23 @@ export function preloadImage(url, timeoutMs = Infinity) {
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * @param {{ onFrame: (url: string) => void }} options onFrame はシルエットとして表示する画像URLを受け取る
+ * @param {{ onFrame: (frame: { item: object, url: string | null }) => void }} options
+ *   onFrame は表示する1コマを受け取る。url があればシルエット、null なら名前を表示する
  */
 export function createRoulette({ onFrame }) {
   let timerId = null;
   let items = [];
-  let loadedUrls = [];
-  let lastUrl = null;
+  let frames = [];
+  let lastFrame = null;
   let session = 0;
 
   function showNextFrame() {
-    if (loadedUrls.length === 0) return;
-    // 同じ画像が続かないようにする
-    let url = pickRandom(loadedUrls);
-    if (loadedUrls.length > 1 && url === lastUrl) url = pickRandom(loadedUrls);
-    lastUrl = url;
-    onFrame(url);
+    if (frames.length === 0) return;
+    // 同じコマが続かないようにする
+    let frame = pickRandom(frames);
+    if (frames.length > 1 && frame === lastFrame) frame = pickRandom(frames);
+    lastFrame = frame;
+    onFrame(frame);
   }
 
   function clearTimer() {
@@ -89,11 +91,16 @@ export function createRoulette({ onFrame }) {
     session += 1;
     const currentSession = session;
     items = targetItems;
-    loadedUrls = [];
-    lastUrl = null;
+    frames = [];
+    lastFrame = null;
     for (const item of sampleWithoutReplacement(items, preloadCount)) {
-      preloadImage(item.images[0]?.url).then((url) => {
-        if (url && currentSession === session) loadedUrls.push(url);
+      const imageUrl = item.images?.[0]?.url;
+      if (!imageUrl) {
+        frames.push({ item, url: null });
+        continue;
+      }
+      preloadImage(imageUrl).then((url) => {
+        if (url && currentSession === session) frames.push({ item, url });
       });
     }
     timerId = setInterval(showNextFrame, tickIntervalMs);
@@ -105,14 +112,14 @@ export function createRoulette({ onFrame }) {
     session += 1;
     if (items.length === 0) return null;
     const item = pickRandom(items);
-    const finalImage = preloadImage(item.images[0]?.url, finalImageTimeoutMs);
+    const finalImage = preloadImage(item.images?.[0]?.url, finalImageTimeoutMs);
 
     for (const delay of slowDownDelaysMs) {
       showNextFrame();
       await wait(delay);
     }
     const finalUrl = await finalImage;
-    if (finalUrl) onFrame(finalUrl);
+    onFrame({ item, url: finalUrl });
     return { item, imageUrl: finalUrl };
   }
 
