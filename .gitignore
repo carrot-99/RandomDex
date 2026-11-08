@@ -1,0 +1,7 @@
+# データ生成スクリプトのPokeAPIキャッシュ（コミットしない）
+scripts/**/.cache/
+scripts/**/report*.txt
+node_modules/
+.DS_Store
+Thumbs.db
+.claude/
