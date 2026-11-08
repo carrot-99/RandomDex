@@ -4,12 +4,30 @@
   "displayFields": [
     { "key": "dexNo", "label": "全国図鑑No", "format": "zeroPad4" },
     { "key": "category", "label": "分類" },
-    { "key": "types", "label": "タイプ", "format": "badges" },
+    {
+      "key": "types", "label": "タイプ", "format": "badges",
+      "colors": {
+        "ノーマル": "#9fa19f", "ほのお": "#e62829", "みず": "#2980ef", "でんき": "#fac000", "くさ": "#3fa129",
+        "こおり": "#3dcef3", "かくとう": "#ff8000", "どく": "#9141cb", "じめん": "#915121", "ひこう": "#81b9ef",
+        "エスパー": "#ef4179", "むし": "#91a119", "いわ": "#afa981", "ゴースト": "#704170", "ドラゴン": "#5060e1",
+        "あく": "#624d4e", "はがね": "#60a1b8", "フェアリー": "#ef70ef"
+      }
+    },
     { "key": "heightM", "label": "高さ", "unit": "m" },
     { "key": "weightKg", "label": "重さ", "unit": "kg" },
-    { "key": "stats", "label": "種族値", "format": "statBars" },
-    { "key": "flavorText", "label": "図鑑説明", "format": "longText", "sourceKey": "flavorTextGame" },
-    { "key": "games", "label": "登場ソフト", "format": "chips" }
+    {
+      "key": "stats", "label": "種族値", "format": "statBars", "max": 255, "totalKey": "total", "totalLabel": "合計",
+      "items": [
+        { "key": "hp", "label": "HP" },
+        { "key": "attack", "label": "こうげき" },
+        { "key": "defense", "label": "ぼうぎょ" },
+        { "key": "spAttack", "label": "とくこう" },
+        { "key": "spDefense", "label": "とくぼう" },
+        { "key": "speed", "label": "すばやさ" }
+      ]
+    },
+    { "key": "flavorText", "label": "図鑑説明", "format": "longText", "sourceKey": "flavorTextGame", "emptyText": "説明文なし" },
+    { "key": "games", "label": "登場ソフト", "format": "chips", "collapseAfter": 6 }
   ],
   "filters": [
     { "key": "generation", "label": "世代", "type": "multiSelect", "match": "any" },

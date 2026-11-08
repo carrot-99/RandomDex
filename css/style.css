@@ -122,21 +122,137 @@ html, body {
 }
 
 .detailList {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: 10px 16px;
-  margin: 20px 0 0;
+  margin: 16px 0 0;
 }
 
-.detailList dt {
+.detailRow {
+  display: grid;
+  grid-template-columns: 6.5em 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--colorBorder);
+}
+
+.detailRow.isWide {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.detailLabel {
   color: var(--colorMuted);
   font-size: 0.85rem;
 }
 
-.detailList dd {
+.detailValue {
   margin: 0;
+  min-width: 0;
   overflow-wrap: anywhere;
   line-height: 1.5;
+}
+
+.fieldNumber { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+
+/* badges */
+.badgeList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.badge {
+  min-width: 5em;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--colorMuted);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* statBars */
+.statBars {
+  display: grid;
+  gap: 6px;
+}
+
+.statRow {
+  display: grid;
+  grid-template-columns: 4.5em 2.5em 1fr;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.statLabel { color: var(--colorMuted); }
+
+.statValue {
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.statBar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--colorBorder);
+  overflow: hidden;
+}
+
+.statBarFill {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+}
+
+.statTotal {
+  padding-top: 6px;
+  border-top: 1px dashed var(--colorBorder);
+}
+
+.statTotal .statLabel { color: var(--colorText); font-weight: 700; }
+
+/* longText */
+.longTextBody {
+  margin: 0;
+  line-height: 1.8;
+}
+
+.longTextBody.isEmpty { color: var(--colorMuted); }
+
+.longTextSource {
+  margin: 4px 0 0;
+  color: var(--colorMuted);
+  font-size: 0.8rem;
+  text-align: right;
+}
+
+/* chips */
+.chipList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  padding: 3px 10px;
+  border: 1px solid var(--colorBorder);
+  border-radius: 999px;
+  background: var(--colorBg);
+  font-size: 0.8rem;
+}
+
+.chipList.isCollapsed .chip.isCollapsible { display: none; }
+
+.chipToggle {
+  margin-top: 8px;
+  padding: 4px 0;
+  border: none;
+  background: none;
+  color: var(--colorPrimary);
+  font-size: 0.85rem;
+  cursor: pointer;
 }
 
 .errorMessage {
