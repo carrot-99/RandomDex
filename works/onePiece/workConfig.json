@@ -1,0 +1,25 @@
+{
+  "workId": "onePiece",
+  "title": "ONE PIECE",
+  "credit": {
+    "text": "データ：One Piece Wiki（CC BY-SA）",
+    "url": "https://onepiece.fandom.com/"
+  },
+  "listFields": ["bounty"],
+  "displayFields": [
+    { "key": "epithet", "label": "異名" },
+    { "key": "bounty", "label": "懸賞金", "format": "jpNumber", "unit": "ベリー" },
+    { "key": "affiliations", "label": "所属", "format": "chips", "collapseAfter": 6 },
+    { "key": "devilFruit", "label": "悪魔の実" },
+    { "key": "devilFruitType", "label": "実の系統" },
+    { "key": "gender", "label": "性別" },
+    { "key": "birthday", "label": "誕生日" },
+    { "key": "heightCm", "label": "身長", "unit": "cm" },
+    { "key": "firstChapter", "label": "初登場", "template": "第{value}話" }
+  ],
+  "filters": [
+    { "key": "affiliations", "label": "所属", "type": "multiSelect", "match": "any", "optionLimit": 24 },
+    { "key": "devilFruitType", "label": "悪魔の実", "type": "multiSelect", "match": "any", "options": ["超人系", "動物系", "自然系", "不明", "なし"] },
+    { "key": "gender", "label": "性別", "type": "multiSelect", "match": "any", "options": ["男性", "女性"] }
+  ]
+}

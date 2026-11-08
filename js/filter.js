@@ -14,12 +14,17 @@ const storageKeyPrefix = 'RandomDex_filter_';
 const filterTypes = {
   multiSelect: {
     // 選択肢：設定にあればその順、無ければ items の実際の値から作る
+    // optionLimit があれば、該当件数の多い順にその数だけ出す（所属のように値が多い項目用）
     options(filter, items) {
       if (Array.isArray(filter.options)) return filter.options;
-      const values = new Set();
+      const counts = new Map();
       for (const item of items) {
-        for (const value of [].concat(item.attributes[filter.key] ?? [])) values.add(value);
+        for (const value of [].concat(item.attributes[filter.key] ?? [])) counts.set(value, (counts.get(value) ?? 0) + 1);
       }
+      if (filter.optionLimit) {
+        return [...counts].sort((a, b) => b[1] - a[1]).slice(0, filter.optionLimit).map(([value]) => value);
+      }
+      const values = new Set(counts.keys());
       return [...values].sort((a, b) => (typeof a === 'number' && typeof b === 'number' ? a - b : String(a).localeCompare(String(b), 'ja')));
     },
     isActive(selection) {

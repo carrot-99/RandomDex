@@ -781,3 +781,13 @@ body.isSheetOpen { overflow: hidden; }
 }
 
 .frameText[hidden] { display: none; }
+
+/* データの出典 */
+.detailCredit {
+  padding-top: 12px;
+  border-top: 1px solid var(--colorBorder);
+  font-size: 0.75rem;
+  text-align: right;
+}
+
+.detailCredit a { color: var(--colorMuted); }
