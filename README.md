@@ -12,3 +12,15 @@
 ```bash
 npx serve .
 ```
+
+## ポケモンデータの生成
+
+PokeAPI から `works/pokemon/items.json` を作り直します（Node.js 18 以上）。
+
+```bash
+node scripts/pokemon/buildItems.mjs
+```
+
+- 取得結果は `scripts/pokemon/.cache/` にキャッシュされます（コミットしません）。取り直すときは `--refresh` を付けます。
+- 実行後、`scripts/pokemon/buildReport.md` に検証レポートが出ます。
+- 除外する姿・ラベルの上書き・分類の補完は `scripts/pokemon/buildRules.json`、PokeAPI に無いデータの手入力は `scripts/pokemon/manualItems.json` に書きます。
