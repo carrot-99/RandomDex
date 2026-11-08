@@ -89,17 +89,55 @@ html, body {
   width: 88%;
   height: 88%;
   object-fit: contain;
+  transition: filter 0.4s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* 抽選中のシルエット。ダークモードでは背景に溶けないよう明るいシルエットにする */
+.resultImage.isSilhouette {
+  filter: brightness(0);
+  transition: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .resultImage.isSilhouette { filter: brightness(0) invert(0.85); }
 }
 
 .placeholder[hidden], .resultImage[hidden] { display: none; }
 
-.shuffleName {
-  min-height: 1.6em;
-  margin: 16px 0 0;
-  color: var(--colorMuted);
-  font-size: 1.1rem;
-  font-weight: 700;
+/* 見た目違いの切り替え */
+.imageFrame.isSwitchable {
+  cursor: pointer;
+  touch-action: pan-y;
 }
+
+.imageLabel {
+  margin: 12px 0 0;
+  color: var(--colorMuted);
+  font-size: 0.9rem;
+}
+
+.dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  max-width: 280px;
+  margin-top: 8px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--colorBorder);
+}
+
+.dot.isActive { background: var(--colorPrimary); }
+
+.imageLabel[hidden], .dots[hidden] { display: none; }
 
 /* 詳細 */
 .detailArea {
@@ -295,4 +333,10 @@ html, body {
   cursor: default;
 }
 
-.mainButton[data-phase="drawing"] { background: #1f2328; }
+.mainButton[data-phase="drawing"],
+.mainButton[data-phase="stopping"] {
+  background: var(--colorText);
+  color: var(--colorBg);
+}
+
+.mainButton[data-phase="stopping"]:disabled { opacity: 0.7; }

@@ -17,11 +17,12 @@
 
   <main class="appMain" id="appMain" data-state="idle">
     <section class="imageArea" aria-live="polite">
-      <div class="imageFrame">
+      <div class="imageFrame" id="imageFrame">
         <div class="placeholder" id="placeholder" aria-hidden="true">？</div>
-        <img class="resultImage" id="resultImage" alt="" hidden>
+        <img class="resultImage" id="resultImage" alt="" draggable="false" hidden>
       </div>
-      <p class="shuffleName" id="shuffleName"></p>
+      <p class="imageLabel" id="imageLabel" hidden></p>
+      <div class="dots" id="imageDots" aria-hidden="true" hidden></div>
     </section>
 
     <section class="detailArea" id="detailArea" hidden>
