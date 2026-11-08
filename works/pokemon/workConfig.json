@@ -1,0 +1,18 @@
+{
+  "workId": "pokemon",
+  "title": "ポケモン",
+  "displayFields": [
+    { "key": "dexNo", "label": "全国図鑑No", "format": "zeroPad4" },
+    { "key": "category", "label": "分類" },
+    { "key": "types", "label": "タイプ", "format": "badges" },
+    { "key": "heightM", "label": "高さ", "unit": "m" },
+    { "key": "weightKg", "label": "重さ", "unit": "kg" },
+    { "key": "stats", "label": "種族値", "format": "statBars" },
+    { "key": "flavorText", "label": "図鑑説明", "format": "longText", "sourceKey": "flavorTextGame" },
+    { "key": "games", "label": "登場ソフト", "format": "chips" }
+  ],
+  "filters": [
+    { "key": "generation", "label": "世代", "type": "multiSelect", "match": "any" },
+    { "key": "types", "label": "タイプ", "type": "multiSelect", "match": "any" }
+  ]
+}
