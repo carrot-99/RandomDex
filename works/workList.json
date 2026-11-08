@@ -1,3 +1,4 @@
 [
-  { "workId": "pokemon", "title": "ポケモン", "order": 1 }
+  { "workId": "pokemon", "title": "ポケモン", "order": 1 },
+  { "workId": "onePiece", "title": "ONE PIECE", "order": 2 }
 ]

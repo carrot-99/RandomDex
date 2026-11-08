@@ -53,3 +53,17 @@ JS ファイルを追加したときは、`index.html` の importmap にも1行�
 
    CSV は `id,name,subName,images,<属性>...` の列を持つ。属性の列名に `:number`（数値）や `:list`（`|` 区切りの配列）を付けられる。画像が無くても動く（抽選中は名前、結果は名前の1文字目を表示）
 3. `works/workList.json` に作品を追加する。作品が2つ以上になるとヘッダーに切り替えが出る
+
+## ONE PIECE データ
+
+```bash
+node scripts/onePiece/buildItems.mjs
+```
+
+- [One Piece Wiki](https://onepiece.fandom.com/) の原作キャラのうち、懸賞金が判明しているキャラを取得します。取るのは事実の項目（日本語名・異名・懸賞金・所属・悪魔の実・誕生日・身長・初登場話）だけで、紹介文などの文章は含めません。
+- 個別の追加・除外・名前の修正は `scripts/onePiece/buildRules.json`、手入力の補正（ビブルカードからの訂正など）は `scripts/onePiece/manualItems.json` に書きます。
+- 実行後、`scripts/onePiece/buildReport.md` に検証レポートが出ます。
+
+### 出典・ライセンス
+
+`works/onePiece/items.json` は One Piece Wiki（Fandom）の内容をもとに作成しており、[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) で提供されます。アプリの詳細画面にも出典を表示しています。

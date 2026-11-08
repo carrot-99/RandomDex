@@ -23,10 +23,30 @@ function textColorFor(hexColor) {
 
 // 各部品は { element, wide } を返す。wide は横幅いっぱいに表示する部品
 const formatRenderers = {
-  // 値をそのまま表示（unit があれば付ける）
+  // 値をそのまま表示（unit があれば付ける。template があれば {value} に値を入れる。例：「第{value}話」）
   plain(value, field) {
-    const text = isEmpty(value) ? '—' : Array.isArray(value) ? value.join('、') : `${value}${field.unit ? ` ${field.unit}` : ''}`;
+    let text;
+    if (isEmpty(value)) text = '—';
+    else if (Array.isArray(value)) text = value.join('、');
+    else if (field.template) text = field.template.replace('{value}', value);
+    else text = `${value}${field.unit ? ` ${field.unit}` : ''}`;
     return { element: createElement('span', 'fieldText', text), wide: false };
+  },
+
+  // 大きな数を「億・万」で表示（30億ベリー、1億2000万ベリー など）
+  jpNumber(value, field) {
+    if (typeof value !== 'number') return formatRenderers.plain(value, field);
+    const units = [[1e12, '兆'], [1e8, '億'], [1e4, '万']];
+    let rest = value;
+    let text = '';
+    for (const [size, unit] of units) {
+      if (rest >= size) {
+        text += `${Math.floor(rest / size)}${unit}`;
+        rest %= size;
+      }
+    }
+    if (rest > 0 || text === '') text += rest;
+    return { element: createElement('span', 'fieldText fieldNumber', `${text}${field.unit ?? ''}`), wide: false };
   },
 
   // 4桁ゼロ埋め（No.0026）
@@ -135,5 +155,15 @@ export function renderDetail(container, item, workConfig) {
     description.append(element);
     row.append(description);
     container.append(row);
+  }
+  // データの出典（ライセンス上の表示が必要な作品用）
+  if (workConfig.credit?.text) {
+    const credit = createElement('div', 'detailCredit');
+    const link = createElement('a', '', workConfig.credit.text);
+    link.href = workConfig.credit.url ?? '#';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    credit.append(link);
+    container.append(credit);
   }
 }
