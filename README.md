@@ -34,3 +34,10 @@ node scripts/bumpVersion.mjs
 ```
 
 JS ファイルを追加したときは、`index.html` の importmap にも1行追加します。
+
+## ホーム画面に追加する
+
+- iPhone（Safari）：共有ボタン →「ホーム画面に追加」
+- Android（Chrome）：メニュー →「ホーム画面に追加」または「アプリをインストール」
+
+アイコンは `node scripts/makeIcons.mjs` で `icons/` に生成します（外部ライブラリ不要）。
