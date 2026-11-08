@@ -1,28 +1,36 @@
 <!doctype html>
-<html lang="ja" data-version="202611082357">
+<html lang="ja" data-version="202611090001">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#d93b3b">
   <title>RandomDex</title>
+  <!-- ホーム画面に追加して使うための設定 -->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="RandomDex">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <!-- ?v= は scripts/bumpVersion.mjs で更新する（古いファイルがキャッシュから混ざらないようにするため） -->
-  <link rel="stylesheet" href="./css/style.css?v=202611082357">
+  <link rel="stylesheet" href="./css/style.css?v=202611090001">
   <script type="importmap">
     {
       "imports": {
-        "./js/app.js": "./js/app.js?v=202611082357",
-        "./js/roulette.js": "./js/roulette.js?v=202611082357",
-        "./js/detailView.js": "./js/detailView.js?v=202611082357",
-        "./js/imageSwitcher.js": "./js/imageSwitcher.js?v=202611082357",
-        "./js/filter.js": "./js/filter.js?v=202611082357",
-        "./js/listView.js": "./js/listView.js?v=202611082357",
-        "./js/history.js": "./js/history.js?v=202611082357",
-        "./js/historyView.js": "./js/historyView.js?v=202611082357"
+        "./js/app.js": "./js/app.js?v=202611090001",
+        "./js/roulette.js": "./js/roulette.js?v=202611090001",
+        "./js/detailView.js": "./js/detailView.js?v=202611090001",
+        "./js/imageSwitcher.js": "./js/imageSwitcher.js?v=202611090001",
+        "./js/filter.js": "./js/filter.js?v=202611090001",
+        "./js/listView.js": "./js/listView.js?v=202611090001",
+        "./js/history.js": "./js/history.js?v=202611090001",
+        "./js/historyView.js": "./js/historyView.js?v=202611090001"
       }
     }
   </script>
-  <script type="module" src="./js/app.js?v=202611082357"></script>
+  <script type="module" src="./js/app.js?v=202611090001"></script>
 </head>
 <body data-view="draw">
   <header class="appHeader">
