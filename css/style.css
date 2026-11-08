@@ -745,3 +745,39 @@ body.isSheetOpen { overflow: hidden; }
   font-size: 0.7rem;
   font-variant-numeric: tabular-nums;
 }
+
+/* 作品の切り替え（作品が2つ以上のときだけ表示） */
+.headerSub {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.workSelect {
+  max-width: 9em;
+  padding: 1px 4px;
+  border: 1px solid rgb(255 255 255 / 0.7);
+  border-radius: 6px;
+  background: transparent;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.workSelect option { color: #1f2328; }
+
+.workSelect[hidden] { display: none; }
+
+/* 画像の無い作品の抽選中に名前を出す */
+.frameText {
+  margin: 0;
+  padding: 0 16%;
+  color: var(--colorText);
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.frameText[hidden] { display: none; }

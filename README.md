@@ -41,3 +41,15 @@ JS ファイルを追加したときは、`index.html` の importmap にも1行�
 - Android（Chrome）：メニュー →「ホーム画面に追加」または「アプリをインストール」
 
 アイコンは `node scripts/makeIcons.mjs` で `icons/` に生成します（外部ライブラリ不要）。
+
+## 作品を追加する
+
+1. `works/<作品ID>/workConfig.json` に表示項目（displayFields）・一覧の項目（listFields）・絞り込み（filters）を書く
+2. `works/<作品ID>/items.json` を用意する。手作りの CSV からは次で変換できる
+
+   ```bash
+   node scripts/csvToItems.mjs <入力.csv> works/<作品ID>/items.json
+   ```
+
+   CSV は `id,name,subName,images,<属性>...` の列を持つ。属性の列名に `:number`（数値）や `:list`（`|` 区切りの配列）を付けられる。画像が無くても動く（抽選中は名前、結果は名前の1文字目を表示）
+3. `works/workList.json` に作品を追加する。作品が2つ以上になるとヘッダーに切り替えが出る
