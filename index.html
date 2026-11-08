@@ -7,14 +7,34 @@
   <meta name="theme-color" content="#d93b3b">
   <title>RandomDex</title>
   <link rel="stylesheet" href="./css/style.css">
+  <script type="module" src="./js/app.js"></script>
 </head>
 <body>
   <header class="appHeader">
     <h1 class="appTitle">RandomDex</h1>
+    <p class="targetCount" id="targetCount">読み込み中…</p>
   </header>
-  <main class="appMain">
-    <div class="placeholder" aria-hidden="true">？</div>
-    <p class="note">準備中</p>
+
+  <main class="appMain" id="appMain" data-state="idle">
+    <section class="imageArea" aria-live="polite">
+      <div class="imageFrame">
+        <div class="placeholder" id="placeholder" aria-hidden="true">？</div>
+        <img class="resultImage" id="resultImage" alt="" hidden>
+      </div>
+      <p class="shuffleName" id="shuffleName"></p>
+    </section>
+
+    <section class="detailArea" id="detailArea" hidden>
+      <h2 class="itemName" id="itemName"></h2>
+      <p class="itemSubName" id="itemSubName"></p>
+      <dl class="detailList" id="detailList"></dl>
+    </section>
+
+    <p class="errorMessage" id="errorMessage" hidden></p>
   </main>
+
+  <footer class="actionBar">
+    <button class="mainButton" id="mainButton" type="button" disabled>START</button>
+  </footer>
 </body>
 </html>
