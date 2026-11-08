@@ -12,7 +12,12 @@
 <body>
   <header class="appHeader">
     <h1 class="appTitle">RandomDex</h1>
-    <p class="targetCount" id="targetCount">読み込み中…</p>
+    <div class="headerRight">
+      <p class="targetCount" id="targetCount">読み込み中…</p>
+      <button class="filterButton" id="filterButton" type="button" disabled>
+        絞り込み<span class="filterBadge" id="filterBadge" hidden></span>
+      </button>
+    </div>
   </header>
 
   <main class="appMain" id="appMain" data-state="idle">
@@ -33,6 +38,8 @@
 
     <p class="errorMessage" id="errorMessage" hidden></p>
   </main>
+
+  <div class="filterSheet" id="filterSheet"></div>
 
   <footer class="actionBar">
     <button class="mainButton" id="mainButton" type="button" disabled>START</button>
