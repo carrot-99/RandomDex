@@ -1,5 +1,6 @@
 // 絞り込み（workConfig.json の filters に従って部品を自動生成する）
 // - 同じ項目の中で複数選択：match が any なら「いずれか」、all なら「すべて含む」
+//   matchSelectable: true の項目は、パネルで any/all を切り替えられる
 // - 異なる項目の間：すべてに当てはまる（AND）
 // - 何も選んでいない項目は条件なし
 // 新しい type を増やすときは filterTypes に1つ追加する。
@@ -24,19 +25,30 @@ const filterTypes = {
     isActive(selection) {
       return Array.isArray(selection) && selection.length > 0;
     },
-    matches(item, filter, selection) {
+    matches(item, filter, selection, match) {
       const values = [].concat(item.attributes[filter.key] ?? []);
-      return filter.match === 'all'
+      return match === 'all'
         ? selection.every((selected) => values.includes(selected))
         : selection.some((selected) => values.includes(selected));
     },
   },
 };
 
+// selections の形：{ <key>: 選んだ値の配列, _match: { <key>: 'any' | 'all' } }
+// _match は matchSelectable な項目で画面から切り替えた判定方法。無ければ設定の match を使う
+const matchKey = '_match';
+
+function matchOf(filter, selections) {
+  const selected = filter.matchSelectable ? selections[matchKey]?.[filter.key] : null;
+  return selected ?? filter.match ?? 'any';
+}
+
 export function filterItems(items, filters, selections) {
   const active = filters.filter((filter) => filterTypes[filter.type]?.isActive(selections[filter.key]));
   if (active.length === 0) return items;
-  return items.filter((item) => active.every((filter) => filterTypes[filter.type].matches(item, filter, selections[filter.key])));
+  return items.filter((item) => active.every((filter) => (
+    filterTypes[filter.type].matches(item, filter, selections[filter.key], matchOf(filter, selections))
+  )));
 }
 
 export function countActiveSelections(filters, selections) {
@@ -57,6 +69,12 @@ export function loadSelections(workId, filters, items) {
       if (!type || !Array.isArray(saved[filter.key])) continue;
       const options = type.options(filter, items);
       selections[filter.key] = saved[filter.key].filter((value) => options.includes(value));
+    }
+    for (const filter of filters) {
+      const match = saved[matchKey]?.[filter.key];
+      if (filter.matchSelectable && (match === 'any' || match === 'all')) {
+        selections[matchKey] = { ...selections[matchKey], [filter.key]: match };
+      }
     }
     return selections;
   } catch {
@@ -124,13 +142,33 @@ export function createFilterPanel({ root, workConfig, items, initialSelections, 
   root.inert = true;
 
   const chipButtons = []; // { filter, value, button }
+  const matchButtons = []; // { filter, match, button }
   const colorFields = Object.fromEntries((workConfig.displayFields ?? []).filter((f) => f.colors).map((f) => [f.key, f.colors]));
 
   for (const filter of filters) {
     const type = filterTypes[filter.type];
     if (!type) continue;
     const section = createElement('section', 'filterSection');
-    section.append(createElement('h3', 'filterLabel', filter.label));
+    const sectionHeader = createElement('div', 'filterSectionHeader');
+    sectionHeader.append(createElement('h3', 'filterLabel', filter.label));
+    // 判定方法の切り替え（いずれか／すべて）
+    if (filter.matchSelectable) {
+      const toggle = createElement('div', 'matchToggle');
+      toggle.setAttribute('role', 'group');
+      toggle.setAttribute('aria-label', `${filter.label}の判定方法`);
+      for (const [match, text] of [['any', 'いずれか'], ['all', 'すべて']]) {
+        const button = createElement('button', 'matchToggleButton', text);
+        button.type = 'button';
+        button.addEventListener('click', () => {
+          draft[matchKey] = { ...draft[matchKey], [filter.key]: match };
+          render();
+        });
+        matchButtons.push({ filter, match, button });
+        toggle.append(button);
+      }
+      sectionHeader.append(toggle);
+    }
+    section.append(sectionHeader);
     const list = createElement('div', 'filterOptions');
     const colors = filter.colorsFrom ? colorFields[filter.colorsFrom] : null;
     for (const value of type.options(filter, items)) {
@@ -154,6 +192,11 @@ export function createFilterPanel({ root, workConfig, items, initialSelections, 
   function render() {
     for (const { filter, value, button } of chipButtons) {
       const selected = (draft[filter.key] ?? []).includes(value);
+      button.classList.toggle('isSelected', selected);
+      button.setAttribute('aria-pressed', String(selected));
+    }
+    for (const { filter, match, button } of matchButtons) {
+      const selected = matchOf(filter, draft) === match;
       button.classList.toggle('isSelected', selected);
       button.setAttribute('aria-pressed', String(selected));
     }

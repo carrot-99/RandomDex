@@ -107,6 +107,7 @@
       "label": "タイプ",
       "type": "multiSelect",
       "match": "any",
+      "matchSelectable": true,
       "options": [
         "ノーマル",
         "ほのお",
