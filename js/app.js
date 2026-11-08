@@ -1,13 +1,16 @@
 // 起動、作品の読み込み、画面状態（待機中・抽選中・結果表示）の切り替え
 import { createRoulette } from './roulette.js';
 import { renderDetail } from './detailView.js';
+import { createImageSwitcher } from './imageSwitcher.js';
 
 const elements = {
   main: document.getElementById('appMain'),
   targetCount: document.getElementById('targetCount'),
+  imageFrame: document.getElementById('imageFrame'),
   placeholder: document.getElementById('placeholder'),
   resultImage: document.getElementById('resultImage'),
-  shuffleName: document.getElementById('shuffleName'),
+  imageLabel: document.getElementById('imageLabel'),
+  imageDots: document.getElementById('imageDots'),
   detailArea: document.getElementById('detailArea'),
   itemName: document.getElementById('itemName'),
   itemSubName: document.getElementById('itemSubName'),
@@ -16,8 +19,11 @@ const elements = {
   mainButton: document.getElementById('mainButton'),
 };
 
+// 決定後、シルエットのまま止めてからカラーにするまでの時間
+const revealDelayMs = 450;
+
 const state = {
-  phase: 'idle', // idle | drawing | result
+  phase: 'idle', // idle | drawing | stopping | result
   workConfig: null,
   items: [],
   targetItems: [],
@@ -39,50 +45,69 @@ async function loadWork() {
   return { workConfig, items };
 }
 
+function showImage(url, { silhouette }) {
+  elements.resultImage.src = url;
+  elements.resultImage.classList.toggle('isSilhouette', silhouette);
+  elements.resultImage.hidden = false;
+  elements.placeholder.hidden = true;
+}
+
+function showPlaceholder() {
+  elements.resultImage.hidden = true;
+  elements.resultImage.removeAttribute('src');
+  elements.placeholder.hidden = false;
+}
+
 const roulette = createRoulette({
-  onTick(item) {
-    elements.shuffleName.textContent = item.name;
+  onFrame(url) {
+    showImage(url, { silhouette: true });
   },
+});
+
+const imageSwitcher = createImageSwitcher({
+  frame: elements.imageFrame,
+  image: elements.resultImage,
+  label: elements.imageLabel,
+  dots: elements.imageDots,
 });
 
 function setPhase(phase) {
   state.phase = phase;
   elements.main.dataset.state = phase;
   elements.mainButton.dataset.phase = phase;
-  elements.mainButton.textContent = phase === 'drawing' ? 'STOP' : 'START';
-  elements.mainButton.disabled = state.targetItems.length === 0;
+  elements.mainButton.textContent = phase === 'drawing' || phase === 'stopping' ? 'STOP' : 'START';
+  elements.mainButton.disabled = state.targetItems.length === 0 || phase === 'stopping';
 }
 
-function showIdle() {
-  elements.placeholder.hidden = false;
-  elements.resultImage.hidden = true;
-  elements.detailArea.hidden = true;
-  elements.shuffleName.textContent = '';
-  setPhase('idle');
-}
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function startDrawing() {
-  elements.placeholder.hidden = false;
-  elements.resultImage.hidden = true;
+  imageSwitcher.hide();
   elements.detailArea.hidden = true;
+  showPlaceholder();
   window.scrollTo({ top: 0 });
   roulette.start(state.targetItems);
   setPhase('drawing');
 }
 
-function stopDrawing() {
-  const item = roulette.stop();
-  showResult(item);
+async function stopDrawing() {
+  setPhase('stopping');
+  const result = await roulette.stop();
+  if (!result) {
+    showPlaceholder();
+    setPhase('idle');
+    return;
+  }
+  await wait(revealDelayMs);
+  showResult(result.item, result.imageUrl);
 }
 
-function showResult(item) {
-  const image = item.images[0];
-  elements.shuffleName.textContent = '';
-  if (image) {
-    elements.resultImage.src = image.url;
-    elements.resultImage.alt = item.name;
-    elements.resultImage.hidden = false;
-    elements.placeholder.hidden = true;
+function showResult(item, imageUrl) {
+  if (imageUrl) {
+    showImage(imageUrl, { silhouette: false });
+    imageSwitcher.show(item.images);
+  } else {
+    showPlaceholder();
   }
   elements.itemName.textContent = item.name;
   elements.itemSubName.textContent = item.subName;
@@ -94,7 +119,7 @@ function showResult(item) {
 
 elements.mainButton.addEventListener('click', () => {
   if (state.phase === 'drawing') stopDrawing();
-  else startDrawing();
+  else if (state.phase === 'idle' || state.phase === 'result') startDrawing();
 });
 
 async function init() {
@@ -104,7 +129,7 @@ async function init() {
     state.items = items;
     state.targetItems = items;
     elements.targetCount.textContent = `対象 ${state.targetItems.length}件`;
-    showIdle();
+    setPhase('idle');
   } catch (error) {
     elements.targetCount.textContent = '';
     elements.errorMessage.textContent = error.message;
