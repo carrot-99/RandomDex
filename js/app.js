@@ -2,10 +2,14 @@
 import { createRoulette } from './roulette.js';
 import { renderDetail } from './detailView.js';
 import { createImageSwitcher } from './imageSwitcher.js';
+import { createFilterPanel, filterItems, loadSelections, saveSelections, countActiveSelections } from './filter.js';
 
 const elements = {
   main: document.getElementById('appMain'),
   targetCount: document.getElementById('targetCount'),
+  filterButton: document.getElementById('filterButton'),
+  filterBadge: document.getElementById('filterBadge'),
+  filterSheet: document.getElementById('filterSheet'),
   imageFrame: document.getElementById('imageFrame'),
   placeholder: document.getElementById('placeholder'),
   resultImage: document.getElementById('resultImage'),
@@ -77,6 +81,18 @@ function setPhase(phase) {
   elements.mainButton.dataset.phase = phase;
   elements.mainButton.textContent = phase === 'drawing' || phase === 'stopping' ? 'STOP' : 'START';
   elements.mainButton.disabled = state.targetItems.length === 0 || phase === 'stopping';
+  // 抽選中は対象が変わらないよう絞り込みを開けなくする
+  elements.filterButton.disabled = !state.workConfig || phase === 'drawing' || phase === 'stopping';
+}
+
+function applySelections(selections) {
+  const filters = state.workConfig.filters ?? [];
+  state.targetItems = filterItems(state.items, filters, selections);
+  elements.targetCount.textContent = `対象 ${state.targetItems.length}件`;
+  const activeCount = countActiveSelections(filters, selections);
+  elements.filterBadge.textContent = activeCount;
+  elements.filterBadge.hidden = activeCount === 0;
+  elements.filterButton.classList.toggle('isActive', activeCount > 0);
 }
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -127,8 +143,22 @@ async function init() {
     const { workConfig, items } = await loadWork();
     state.workConfig = workConfig;
     state.items = items;
-    state.targetItems = items;
-    elements.targetCount.textContent = `対象 ${state.targetItems.length}件`;
+    const filters = workConfig.filters ?? [];
+    const selections = loadSelections(workConfig.workId, filters, items);
+    applySelections(selections);
+
+    const filterPanel = createFilterPanel({
+      root: elements.filterSheet,
+      workConfig,
+      items,
+      initialSelections: selections,
+      onApply(newSelections) {
+        saveSelections(workConfig.workId, newSelections);
+        applySelections(newSelections);
+        setPhase(state.phase);
+      },
+    });
+    elements.filterButton.addEventListener('click', () => filterPanel.open());
     setPhase('idle');
   } catch (error) {
     elements.targetCount.textContent = '';
