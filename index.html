@@ -9,18 +9,22 @@
   <link rel="stylesheet" href="./css/style.css">
   <script type="module" src="./js/app.js"></script>
 </head>
-<body>
+<body data-view="draw">
   <header class="appHeader">
-    <h1 class="appTitle">RandomDex</h1>
-    <div class="headerRight">
+    <div class="headerLeft">
+      <h1 class="appTitle">RandomDex</h1>
       <p class="targetCount" id="targetCount">読み込み中…</p>
-      <button class="filterButton" id="filterButton" type="button" disabled>
+    </div>
+    <div class="headerRight">
+      <a class="headerButton" id="viewSwitchButton" href="#list">一覧</a>
+      <button class="headerButton filterButton" id="filterButton" type="button" disabled>
         絞り込み<span class="filterBadge" id="filterBadge" hidden></span>
       </button>
     </div>
   </header>
 
-  <main class="appMain" id="appMain" data-state="idle">
+  <!-- 抽選画面 -->
+  <main class="appMain" id="drawView" data-state="idle">
     <section class="imageArea" aria-live="polite">
       <div class="imageFrame" id="imageFrame">
         <div class="placeholder" id="placeholder" aria-hidden="true">？</div>
@@ -39,9 +43,37 @@
     <p class="errorMessage" id="errorMessage" hidden></p>
   </main>
 
+  <!-- 一覧画面 -->
+  <main class="appMain listView" id="listView" hidden>
+    <div class="searchBox">
+      <input class="searchInput" id="searchInput" type="search" placeholder="名前で探す" autocomplete="off" enterkeyhint="search">
+    </div>
+    <p class="listCount" id="listCount"></p>
+    <ul class="itemList" id="itemList"></ul>
+  </main>
+
+  <!-- 詳細画面（一覧から開く） -->
+  <main class="appMain" id="itemView" hidden>
+    <a class="backLink" id="backLink" href="#list">‹ 一覧に戻る</a>
+    <section class="imageArea">
+      <div class="imageFrame" id="itemImageFrame">
+        <div class="placeholder" id="itemPlaceholder" aria-hidden="true">？</div>
+        <img class="resultImage" id="itemImage" alt="" draggable="false" hidden>
+      </div>
+      <p class="imageLabel" id="itemImageLabel" hidden></p>
+      <div class="dots" id="itemImageDots" aria-hidden="true" hidden></div>
+    </section>
+
+    <section class="detailArea">
+      <h2 class="itemName" id="itemViewName"></h2>
+      <p class="itemSubName" id="itemViewSubName"></p>
+      <dl class="detailList" id="itemViewDetailList"></dl>
+    </section>
+  </main>
+
   <div class="filterSheet" id="filterSheet"></div>
 
-  <footer class="actionBar">
+  <footer class="actionBar" id="actionBar">
     <button class="mainButton" id="mainButton" type="button" disabled>START</button>
   </footer>
 </body>

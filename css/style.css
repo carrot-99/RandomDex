@@ -36,10 +36,10 @@ html, body {
   top: 0;
   z-index: 10;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: calc(env(safe-area-inset-top) + 12px) 16px 12px;
+  gap: 8px;
+  padding: calc(env(safe-area-inset-top) + 10px) 12px 10px 16px;
   background: var(--colorPrimary);
   color: #fff;
 }
@@ -50,10 +50,17 @@ html, body {
   letter-spacing: 0.04em;
 }
 
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 .targetCount {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   opacity: 0.9;
+  white-space: nowrap;
 }
 
 /* 本体 */
@@ -311,6 +318,8 @@ html, body {
   background: linear-gradient(to top, var(--colorBg) 70%, transparent);
 }
 
+.actionBar[hidden] { display: none; }
+
 .mainButton {
   width: min(100%, 360px);
   height: 60px;
@@ -345,10 +354,10 @@ html, body {
 .headerRight {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
-.filterButton {
+.headerButton {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -359,8 +368,12 @@ html, body {
   color: #fff;
   font-size: 0.85rem;
   font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
 }
+
+.headerButton.isDisabled { opacity: 0.5; pointer-events: none; }
 
 .filterButton.isActive {
   background: #fff;
@@ -562,3 +575,121 @@ body.isSheetOpen { overflow: hidden; }
   background: var(--colorText);
   color: var(--colorBg);
 }
+
+/* 一覧画面 */
+.listView { padding-bottom: calc(env(safe-area-inset-bottom) + 24px); }
+
+.searchBox {
+  position: sticky;
+  top: calc(env(safe-area-inset-top) + 58px);
+  z-index: 5;
+  margin: -24px -16px 0;
+  padding: 12px 16px 8px;
+  background: var(--colorBg);
+}
+
+.searchInput {
+  width: 100%;
+  height: 44px;
+  padding: 0 16px;
+  border: 1.5px solid var(--colorBorder);
+  border-radius: 22px;
+  background: var(--colorSurface);
+  color: var(--colorText);
+  font-size: 16px; /* iOS で入力時に拡大されないよう 16px 以上 */
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--colorPrimary);
+}
+
+.listCount {
+  margin: 4px 4px 8px;
+  color: var(--colorMuted);
+  font-size: 0.8rem;
+}
+
+.itemList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: 16px;
+  background: var(--colorSurface);
+  overflow: hidden;
+}
+
+.itemRow + .itemRow { border-top: 1px solid var(--colorBorder); }
+
+.itemLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 56px;
+  padding: 8px 12px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.itemLink:active { background: var(--colorBorder); }
+
+.itemRowMain {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.itemRowLead {
+  flex-shrink: 0;
+  color: var(--colorMuted);
+  font-size: 0.75rem;
+}
+
+.itemRowNames {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.itemRowName { font-weight: 700; }
+
+.itemRowSubName {
+  color: var(--colorMuted);
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemRowExtra { flex-shrink: 0; }
+
+.itemRowExtra .badgeList {
+  flex-wrap: nowrap;
+  gap: 4px;
+}
+
+.itemRowExtra .badge {
+  min-width: 3.6em;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+}
+
+.itemRowEmpty {
+  padding: 24px 16px;
+  color: var(--colorMuted);
+  text-align: center;
+}
+
+/* 詳細画面 */
+.backLink {
+  display: inline-block;
+  margin: -8px 0 12px;
+  padding: 6px 0;
+  color: var(--colorPrimary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+#itemView { padding-bottom: calc(env(safe-area-inset-bottom) + 24px); }

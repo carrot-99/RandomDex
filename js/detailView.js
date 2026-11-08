@@ -118,6 +118,12 @@ const formatRenderers = {
   },
 };
 
+// 1項目分の表示部品を返す（一覧画面でも使う）
+export function renderFieldValue(field, item) {
+  const renderer = formatRenderers[field.format] ?? formatRenderers.plain;
+  return renderer(item.attributes[field.key], field, item).element;
+}
+
 export function renderDetail(container, item, workConfig) {
   container.replaceChildren();
   for (const field of workConfig.displayFields) {

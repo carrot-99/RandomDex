@@ -1,6 +1,7 @@
 {
   "workId": "pokemon",
   "title": "ポケモン",
+  "listFields": ["dexNo", "types"],
   "displayFields": [
     {
       "key": "dexNo",
