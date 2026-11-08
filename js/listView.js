@@ -21,10 +21,43 @@ export function normalizeForSearch(text) {
     .replace(/\s+/g, '');
 }
 
-export function createListView({ list, count, searchInput, workConfig }) {
-  const fields = (workConfig.listFields ?? [])
+// 表示する項目：workConfig.json の listFields（displayFields の key を並べる）
+export function resolveListFields(workConfig) {
+  return (workConfig.listFields ?? [])
     .map((key) => workConfig.displayFields.find((field) => field.key === key))
     .filter(Boolean);
+}
+
+// 一覧・履歴で共通の1行。meta を渡すと名前の下に小さく添える（例：抽選日時）
+export function createItemRow(item, fields, { meta } = {}) {
+  const row = createElement('li', 'itemRow');
+  const link = createElement('a', 'itemLink');
+  link.href = `#item/${encodeURIComponent(item.id)}`;
+  const main = createElement('span', 'itemRowMain');
+  const names = createElement('span', 'itemRowNames');
+  names.append(createElement('span', 'itemRowName', item.name));
+  if (item.subName) names.append(createElement('span', 'itemRowSubName', item.subName));
+  if (meta) names.append(createElement('span', 'itemRowMeta', meta));
+  const [firstField, ...restFields] = fields;
+  // 先頭の項目（図鑑No など）は名前の左に、残り（タイプ等）は右に並べる
+  if (firstField) {
+    const lead = createElement('span', 'itemRowLead');
+    lead.append(renderFieldValue(firstField, item));
+    main.append(lead);
+  }
+  main.append(names);
+  link.append(main);
+  if (restFields.length) {
+    const extra = createElement('span', 'itemRowExtra');
+    for (const field of restFields) extra.append(renderFieldValue(field, item));
+    link.append(extra);
+  }
+  row.append(link);
+  return row;
+}
+
+export function createListView({ list, count, searchInput, workConfig }) {
+  const fields = resolveListFields(workConfig);
   let items = [];
   let query = '';
   const searchTextCache = new WeakMap();
@@ -34,37 +67,11 @@ export function createListView({ list, count, searchInput, workConfig }) {
     return searchTextCache.get(item);
   }
 
-  function createRow(item) {
-    const row = createElement('li', 'itemRow');
-    const link = createElement('a', 'itemLink');
-    link.href = `#item/${encodeURIComponent(item.id)}`;
-    const main = createElement('span', 'itemRowMain');
-    const names = createElement('span', 'itemRowNames');
-    names.append(createElement('span', 'itemRowName', item.name));
-    if (item.subName) names.append(createElement('span', 'itemRowSubName', item.subName));
-    const [firstField, ...restFields] = fields;
-    // 先頭の項目（図鑑No など）は名前の左に、残り（タイプ等）は右に並べる
-    if (firstField) {
-      const lead = createElement('span', 'itemRowLead');
-      lead.append(renderFieldValue(firstField, item));
-      main.append(lead);
-    }
-    main.append(names);
-    link.append(main);
-    if (restFields.length) {
-      const extra = createElement('span', 'itemRowExtra');
-      for (const field of restFields) extra.append(renderFieldValue(field, item));
-      link.append(extra);
-    }
-    row.append(link);
-    return row;
-  }
-
   function render() {
     const normalizedQuery = normalizeForSearch(query);
     const visible = normalizedQuery ? items.filter((item) => searchTextOf(item).includes(normalizedQuery)) : items;
     const fragment = document.createDocumentFragment();
-    for (const item of visible) fragment.append(createRow(item));
+    for (const item of visible) fragment.append(createItemRow(item, fields));
     list.replaceChildren(fragment);
     count.textContent = normalizedQuery ? `${visible.length}件（対象 ${items.length}件中）` : `${items.length}件`;
     if (visible.length === 0) list.append(createElement('li', 'itemRowEmpty', '該当するものがありません'));
