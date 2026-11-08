@@ -525,3 +525,40 @@ body.isSheetOpen { overflow: hidden; }
 }
 
 .sheetButton:disabled { opacity: 0.4; cursor: default; }
+
+/* 判定方法の切り替え（いずれか／すべて） */
+.filterSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.filterSectionHeader .filterLabel { margin: 0; }
+
+.matchToggle {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--colorBg);
+  border: 1px solid var(--colorBorder);
+}
+
+.matchToggleButton {
+  min-height: 30px;
+  padding: 4px 12px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--colorMuted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.matchToggleButton.isSelected {
+  background: var(--colorText);
+  color: var(--colorBg);
+}
